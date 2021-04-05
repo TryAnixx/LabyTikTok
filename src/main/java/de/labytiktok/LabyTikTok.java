@@ -3,6 +3,8 @@ package de.labytiktok;
 import de.labytiktok.modules.FollowerModule;
 import de.labytiktok.utils.WebUtils;
 import net.labymod.api.LabyModAddon;
+import net.labymod.core.LabyModCore;
+import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
@@ -14,6 +16,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LabyTikTok extends LabyModAddon {
     private WebUtils webUtils;
@@ -25,6 +29,8 @@ public class LabyTikTok extends LabyModAddon {
     public void onEnable() {
         instance = this;
         webUtils = new WebUtils();
+
+        System.out.println("LabyTikTok gestartet!");
 
         api.registerModule(new FollowerModule());
         webUtils.setURL("https://api.tiktokcounter.com/?type=stats&username=");
