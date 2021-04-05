@@ -3,6 +3,7 @@ package de.labytiktok;
 import de.labytiktok.modules.FollowerModule;
 import de.labytiktok.utils.WebUtils;
 import net.labymod.api.LabyModAddon;
+import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
 import net.labymod.settings.elements.StringElement;
@@ -17,6 +18,7 @@ import java.util.List;
 public class LabyTikTok extends LabyModAddon {
     private WebUtils webUtils;
     private String username;
+    private boolean enabled;
     private boolean init;
     private static LabyTikTok instance;
     @Override
@@ -33,24 +35,36 @@ public class LabyTikTok extends LabyModAddon {
     @Override
     public void loadConfig() {
         this.username = getConfig().has("username") ? getConfig().get("username").getAsString() : "labymod";
+        this.enabled = getConfig().has("enabled") ? getConfig().get("enabled").getAsBoolean() : false;
         webUtils.setUsername(username.toLowerCase());
     }
 
     @Override
     protected void fillSettings(List<SettingsElement> list) {
-        list.add(new StringElement("Username", new ControlElement.IconData(Material.NAME_TAG), username, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                username = s.toLowerCase();
-                getConfig().addProperty("username", username.toLowerCase());
-                saveConfig();
-                webUtils.setUsername(username.toLowerCase());
-            }
+        list.add(new StringElement("Username", new ControlElement.IconData(Material.NAME_TAG), username, s -> {
+            username = s.toLowerCase();
+            getConfig().addProperty("username", username.toLowerCase());
+            saveConfig();
+            webUtils.setUsername(username.toLowerCase());
         }));
+        list.add(new BooleanElement("Enable", new ControlElement.IconData(Material.NAME_TAG), aBoolean ->{
+            enabled = aBoolean;
+            getConfig().addProperty("enabled", aBoolean);
+            saveConfig();
+            if(webUtils.isActive() && !enabled){
+                webUtils.stop();
+            }else if(!webUtils.isActive() && enabled){
+                webUtils.start();
+            }
+        }, enabled));
     }
 
     public static LabyTikTok getInstance() {
         return instance;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public WebUtils getWebUtils() {
@@ -59,7 +73,7 @@ public class LabyTikTok extends LabyModAddon {
 
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event){
-        if(!init){
+        if(!init && enabled){
             try {
                 webUtils.start();
             } catch (Exception e) {

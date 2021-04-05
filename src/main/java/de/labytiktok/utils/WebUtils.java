@@ -18,6 +18,7 @@ public class WebUtils {
     private String URL;
     private int requestInterval;
     private String username;
+    private boolean active;
 
     private static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
 
@@ -39,6 +40,7 @@ public class WebUtils {
     }
     public void start() {
         executor = Executors.newSingleThreadScheduledExecutor();
+        active = true;
         executor.execute(()->{
             if(checkUsername()){
                 executor.scheduleAtFixedRate(() -> {
@@ -52,6 +54,20 @@ public class WebUtils {
 
             }
         });
+    }
+
+
+    public void stop(){
+        active = false;
+        executor.shutdownNow();
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     private boolean checkUsername() {
